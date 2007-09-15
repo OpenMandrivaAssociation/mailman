@@ -254,7 +254,7 @@ The initial 'mailman' list is automatically created, with root@hostname as
 admin, and a randomly generated password. A notification message should get
 send, provided a correctly configured smtp server is available. The same
 password is also used a site password.
-This procedure is known to fail during a complete mandrake installation, as
+This procedure is known to fail during a complete Mandriva installation, as
 there is no configured smtp server available.
 
 upgrade
