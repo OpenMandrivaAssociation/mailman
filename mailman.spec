@@ -27,6 +27,7 @@ Requires(preun):    rpm-helper
 Requires(postun):   rpm-helper >= 0.16
 BuildRequires:      rpm-helper >= 0.18
 BuildRequires:      rpm-mandriva-setup >= 1.23
+BuildRoot:          %{_tmppath}/%{name}-%{version}
 
 %description
 Mailman -- The GNU Mailing List Management System --
