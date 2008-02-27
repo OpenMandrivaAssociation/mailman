@@ -4,7 +4,7 @@
 
 Name:		mailman
 Version:	2.1.9
-Release:	%mkrel 2
+Release:	%mkrel 3
 Summary:	The GNU Mailing List Management System
 Group:		System/Servers
 License:	GPL
@@ -13,6 +13,7 @@ Source0:	http://prdownloads.sourceforge.net/mailman/%{name}-%{version}.tar.bz2
 Source1:    %{name}.init
 Source3:	%{name}.bash-completion
 Patch0:		%{name}-buildroot-check.patch
+Patch1:		%{name}-2.1.9-rename-arch.patch
 Patch6:		%{name}-2.1.2-postfix-aliases.patch
 Patch8:		%{name}-2.1.5-build.patch
 Patch9:		%{name}-2.1.8-Charset.patch
@@ -62,6 +63,7 @@ Conditional build options:
 %prep
 %setup -q
 %patch0 -p1 -b .buildroot
+%patch1 -p1 -b .rename-arch
 %patch6 -p1 -b .chmod
 %patch8
 cd misc
@@ -76,6 +78,7 @@ cd ..
 %serverbuild
 # As a normal user, we don't have permissions to do this.  %patch0 changes
 #   configure so that the directory check will never fail.
+autoreconf
 ./configure \
 	--prefix=%{_libdir}/%{name} \
     --with-var-prefix=%{_localstatedir}/%{name} \
