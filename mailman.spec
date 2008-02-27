@@ -234,6 +234,7 @@ pushd %{buildroot}%{_sbindir}
 for bin in ../..%{_libdir}/%{name}/bin/*; do
 	ln -s $bin .
 done
+popd
 
 cat > README.mdv <<EOF
 Mandriva RPM specific notes
