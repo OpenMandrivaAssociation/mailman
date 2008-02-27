@@ -129,7 +129,7 @@ install -m 755 misc/mailman %{buildroot}%{_initrddir}
 
 # (sb) sendmail 
 install -d -m 755 %{buildroot}%{_sysconfdir}/smrsh
-ln -sf %{_libdir}/%{name}/mail/%{name} %{buildroot}%{_sysconfdir}/smrsh
+(cd %{buildroot}%{_sysconfdir}/smrsh && ln -s ../..%{_libdir}/%{name}/mail/%{name} .)
 
 # move logs directory into /var/log
 install -d -m 755 %{buildroot}/var/log
