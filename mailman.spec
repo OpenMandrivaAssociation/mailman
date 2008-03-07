@@ -4,7 +4,7 @@
 
 Name:		mailman
 Version:	2.1.9
-Release:	%mkrel 3
+Release:	%mkrel 4
 Summary:	The GNU Mailing List Management System
 Group:		System/Servers
 License:	GPL
@@ -14,6 +14,7 @@ Source1:    %{name}.init
 Source3:	%{name}.bash-completion
 Patch0:		%{name}-buildroot-check.patch
 Patch1:		%{name}-2.1.9-rename-arch.patch
+Patch2:	    %{name}-2.1.9-fix-CVE-2008-0564.patch
 Patch6:		%{name}-2.1.2-postfix-aliases.patch
 Patch8:		%{name}-2.1.5-build.patch
 Patch9:		%{name}-2.1.8-Charset.patch
@@ -64,6 +65,7 @@ Conditional build options:
 %setup -q
 %patch0 -p1 -b .buildroot
 %patch1 -p1 -b .rename-arch
+%patch2 -p0 -b .cve-2008-0564
 %patch6 -p1 -b .chmod
 %patch8
 cd misc
