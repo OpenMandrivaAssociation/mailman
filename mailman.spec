@@ -83,7 +83,7 @@ cd ..
 autoreconf
 ./configure \
 	--prefix=%{_libdir}/%{name} \
-    --with-var-prefix=%{_localstatedir}/%{name} \
+    --with-var-prefix=%{_localstatedir}/lib/%{name} \
 	--with-mail-gid=%{gid} \
 	--with-cgi-gid=apache \
 	--with-username=%{uid} \
@@ -138,8 +138,8 @@ install -d -m 755 %{buildroot}%{_sysconfdir}/smrsh
 
 # move logs directory into /var/log
 install -d -m 755 %{buildroot}/var/log
-mv %{buildroot}%{_localstatedir}/%{name}/logs %{buildroot}/var/log/%{name}
-(cd %{buildroot}%{_localstatedir}/%{name} && ln -s ../../log/%{name} logs)
+mv %{buildroot}%{_localstatedir}/lib/%{name}/logs %{buildroot}/var/log/%{name}
+(cd %{buildroot}%{_localstatedir}/lib/%{name} && ln -s ../../log/%{name} logs)
 
 # move config file into /etc
 install -d -m 755 %{buildroot}%{_sysconfdir}
@@ -149,7 +149,7 @@ rm -f %{buildroot}%{_libdir}/%{name}/Mailman/mm_cfg.py.dist
 
 # fix permissions mess
 chmod -R go=u-w %{buildroot}%{_libdir}/%{name}
-chmod go=u-w %{buildroot}%{_localstatedir}/%{name}
+chmod go=u-w %{buildroot}%{_localstatedir}/lib/%{name}
 
 # logrotate
 install -d m 755 %{buildroot}%{_sysconfdir}/logrotate.d
@@ -278,8 +278,8 @@ if [ $1 = "2" ]; then
   if [ ! -L %{_libdir}/%{name}/Mailman/mm_cfg.py ]; then
     mv %{_libdir}/%{name}/Mailman/mm_cfg.py %{_sysconfdir}/%{name}.tmp
   fi
-  if [ ! -L %{_localstatedir}/%{name}/logs ]; then
-    mv %{_localstatedir}/%{name}/logs /var/log/%{name}
+  if [ ! -L %{_localstatedir}/lib/%{name}/logs ]; then
+    mv %{_localstatedir}/lib/%{name}/logs /var/log/%{name}
   fi
 fi
 
@@ -313,7 +313,7 @@ EOF
     crontab -u %{uid} %{_libdir}/%{name}/cron/crontab.in
 
     # add aliases
-    %create_ghostfile %{_localstatedir}/%{name}/data/aliases %{uid} %{gid} 660
+    %create_ghostfile %{_localstatedir}/lib/%{name}/data/aliases %{uid} %{gid} 660
     mta="`readlink /etc/alternatives/sendmail-command 2>/dev/null | cut -d . -f 2`"
     if [ "$mta" == "postfix" ]; then
         cat >>Mailman/mm_cfg.py <<EOF
@@ -324,11 +324,11 @@ EOF
         postconf -e \
             "owner_request_special = no" \
             "recipient_delimiter = +" \
-            "alias_database = $database, hash:%{_localstatedir}/%{name}/data/aliases" \
-            "alias_maps = $maps, hash:%{_localstatedir}/%{name}/data/aliases"
+            "alias_database = $database, hash:%{_localstatedir}/lib/%{name}/data/aliases" \
+            "alias_maps = $maps, hash:%{_localstatedir}/lib/%{name}/data/aliases"
     else
         cat >> %{_sysconfdir}/aliases <<EOF
-:include:   %{_localstatedir}/%{name}/data/aliases
+:include:   %{_localstatedir}/lib/%{name}/data/aliases
 EOF
     fi
     /usr/bin/newaliases
@@ -366,14 +366,14 @@ if [ $1 = 0 ]; then
     mta="`readlink /etc/alternatives/sendmail-command 2>/dev/null | cut -d . -f 2`"
     if [ "$mta" == "postfix" ]; then
         database=`/usr/sbin/postconf -h alias_database | \
-            sed -e 's|, hash:%{_localstatedir}/%{name}/data/aliases||'`
+            sed -e 's|, hash:%{_localstatedir}/lib/%{name}/data/aliases||'`
         maps=`/usr/sbin/postconf -h alias_maps | \
-            sed -e 's|, hash:%{_localstatedir}/%{name}/data/aliases||'`
+            sed -e 's|, hash:%{_localstatedir}/lib/%{name}/data/aliases||'`
         postconf -e \
             "alias_database = $database" \
             "alias_maps = $maps"
     else
-        sed -i -e '/:include:   %{_localstatedir}/%{name}/data/aliases/d' \
+        sed -i -e '/:include:   %{_localstatedir}/lib/%{name}/data/aliases/d' \
             %{_sysconfdir}/aliases
     fi
     /usr/bin/newaliases
@@ -401,8 +401,8 @@ rm -rf %{buildroot}
 %dir %{_libdir}/%{name}/mail
 %attr(02755,root,%{gid}) %{_libdir}/%{name}/mail/*
 # variable files
-%dir %{_localstatedir}/%{name}
-%attr(-,root,%{gid}) %{_localstatedir}/%{name}/*
+%dir %{_localstatedir}/lib/%{name}
+%attr(-,root,%{gid}) %{_localstatedir}/lib/%{name}/*
 %attr(-,root,%{gid}) /var/log/%{name}
 # configuration files
 %{_initrddir}/%{name}
