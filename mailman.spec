@@ -4,7 +4,7 @@
 
 Name:		mailman
 Version:	2.1.9
-Release:	%mkrel 4
+Release:	%mkrel 5
 Summary:	The GNU Mailing List Management System
 Group:		System/Servers
 License:	GPL
@@ -256,12 +256,12 @@ scream, but mailman runs fine.
 
 post-installation
 -----------------
-The initial 'mailman' list is automatically created, with root@hostname as
-admin, and a randomly generated password. A notification message should get
-send, provided a correctly configured smtp server is available. The same
-password is also used a site password.
-This procedure is known to fail during a complete Mandriva installation, as
-there is no configured smtp server available.
+Post-installation script attempts first to integrate mailman aliases file with
+existing mail aliases. Then the server-wide 'mailman' list is automatically
+created, with root@hostname as admin, and a randomly generated password. This
+results in a notification message sent by mailman for this user, containing
+the password.
+The same password is also used as the site password.
 
 upgrade
 -------
@@ -295,13 +295,6 @@ if [ $1 = 1 ]; then
     # generic tasks
     hostname=`hostname`
 
-    # mailman basic configuration
-    cat >>Mailman/mm_cfg.py <<EOF
-DEFAULT_EMAIL_HOST = '$hostname'
-DEFAULT_URL_HOST = '$hostname'
-add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
-EOF
-
     # make sure mail user is allowed to use cron
     if [ -f %{_sysconfdir}/cron.allow ]; then
         if ! grep -q %{uid} %{_sysconfdir}/cron.allow; then
@@ -319,12 +312,10 @@ EOF
         cat >>Mailman/mm_cfg.py <<EOF
 MTA = 'Postfix'
 EOF
-        database=`/usr/sbin/postconf -h alias_database`
         maps=`/usr/sbin/postconf -h alias_maps`
         postconf -e \
             "owner_request_special = no" \
             "recipient_delimiter = +" \
-            "alias_database = $database, hash:%{_localstatedir}/lib/%{name}/data/aliases" \
             "alias_maps = $maps, hash:%{_localstatedir}/lib/%{name}/data/aliases"
     else
         cat >> %{_sysconfdir}/aliases <<EOF
