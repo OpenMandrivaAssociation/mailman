@@ -259,9 +259,12 @@ post-installation
 Post-installation script attempts first to integrate mailman aliases file with
 existing mail aliases. Then the server-wide 'mailman' list is automatically
 created, with root@hostname as admin, and a randomly generated password. This
-results in a notification message sent by mailman for this user, containing
-the password.
-The same password is also used as the site password.
+list is configured with generic default values, but its configuration should be
+reviewed before usage.
+The password is available in the notification message sent by mailman upon list
+creation, and is also used as the site password. The mailman service has to be
+started, and the SMTP server has to be running for the message to be correctly
+delivered.
 
 upgrade
 -------
@@ -331,8 +334,9 @@ EOF
     %{_sbindir}/mmsitepass $passwd > /dev/null
 
     if [ ! -f /var/lib/mailman/lists/mailman/config.pck ]; then
-        # initial list creation
+        # initial list creation and configuration
         su %{uid} -c "%{_sbindir}/newlist mailman root@$hostname $passwd" > /dev/null
+        %{_sbindir}/config_list -i /var/lib/mailman/data/sitelist.cfg mailman
     fi
 
 else
