@@ -297,6 +297,14 @@ if [ $1 = 1 ]; then
 
     # generic tasks
     hostname=`hostname`
+    domainname=`dnsdomainname`
+
+    # mailman basic configuration
+    cat >>Mailman/mm_cfg.py <<EOF
+DEFAULT_EMAIL_HOST = '$dnsdomainname'
+DEFAULT_URL_HOST = '$hostname'
+add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
+EOF
 
     # make sure mail user is allowed to use cron
     if [ -f %{_sysconfdir}/cron.allow ]; then
@@ -320,12 +328,13 @@ EOF
             "recipient_delimiter = +" \
             "unknown_local_recipient_reject_code = 450" \
             "alias_maps = $maps, hash:%{_localstatedir}/lib/%{name}/data/aliases"
+        /usr/bin/postalias %{_localstatedir}/lib/%{name}/data/aliases
     else
         cat >> %{_sysconfdir}/aliases <<EOF
 :include:   %{_localstatedir}/lib/%{name}/data/aliases
 EOF
+        /usr/bin/newaliases
     fi
-    /usr/bin/newaliases
 
     # generate random password
     passwd=%_get_password 8
