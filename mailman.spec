@@ -317,8 +317,8 @@ MTA = 'Postfix'
 EOF
         maps=`/usr/sbin/postconf -h alias_maps`
         postconf -e \
-            "owner_request_special = no" \
             "recipient_delimiter = +" \
+            "unknown_local_recipient_reject_code = 450" \
             "alias_maps = $maps, hash:%{_localstatedir}/lib/%{name}/data/aliases"
     else
         cat >> %{_sysconfdir}/aliases <<EOF
