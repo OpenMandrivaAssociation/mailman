@@ -2,26 +2,25 @@
 %define gid     mail
 %define email_version   2.5.8
 
-Name:		mailman
-Version:	2.1.9
-Release:	%mkrel 7
-Summary:	The GNU Mailing List Management System
-Group:		System/Servers
-License:	GPL
-URL:		http://www.list.org/
-Source0:	http://prdownloads.sourceforge.net/mailman/%{name}-%{version}.tar.bz2
+Name:       mailman
+Version:    2.1.11
+Release:    %mkrel 1
+Summary:    The GNU Mailing List Management System
+Group:      System/Servers
+License:    GPL
+URL:        http://www.list.org/
+Source0:    http://prdownloads.sourceforge.net/mailman/%{name}-%{version}.tgz
 Source1:    %{name}.init
-Source3:	%{name}.bash-completion
-Patch0:		%{name}-buildroot-check.patch
-Patch1:		%{name}-2.1.9-rename-arch.patch
-Patch2:	    %{name}-2.1.9-fix-CVE-2008-0564.patch
-Patch6:		%{name}-2.1.2-postfix-aliases.patch
-Patch8:		%{name}-2.1.5-build.patch
-Patch9:		%{name}-2.1.8-Charset.patch
-BuildRequires:	libpython-devel
-Requires:	mail-server
-Requires:	apache
-Requires:	python
+Source3:    %{name}.bash-completion
+Patch0:     %{name}-buildroot-check.patch
+Patch1:     %{name}-2.1.9-rename-arch.patch
+Patch6:     %{name}-2.1.2-postfix-aliases.patch
+Patch8:     %{name}-2.1.5-build.patch
+Patch9:     %{name}-2.1.11-change-default-icons-url.patch
+BuildRequires:  libpython-devel
+Requires:   mail-server
+Requires:   apache
+Requires:   python
 # webapp macros and scriptlets
 Requires(post):     mail-server
 Requires(post):     rpm-helper >= 0.18
@@ -58,23 +57,16 @@ Python. Features:
         right domain
 
 Conditional build options:
-	mailman uid --with uid %{uid}
-	mailman gid --with gid %{gid}
+    mailman uid --with uid %{uid}
+    mailman gid --with gid %{gid}
 
 %prep
 %setup -q
 %patch0 -p1 -b .buildroot
 %patch1 -p1 -b .rename-arch
-%patch2 -p0 -b .cve-2008-0564
 %patch6 -p1 -b .chmod
 %patch8
-cd misc
-tar -zxf email-%{email_version}.tar.gz
-cd email-%{email_version}
-%patch9 -p1 -b .charset
-cd ..
-tar -czf email-%{email_version}.tar.gz email-%{email_version}
-cd ..
+%patch9 -p1 -b .default
 
 %build
 %serverbuild
@@ -82,16 +74,16 @@ cd ..
 #   configure so that the directory check will never fail.
 autoreconf
 ./configure \
-	--prefix=%{_libdir}/%{name} \
-    --with-var-prefix=%{_localstatedir}/lib/%{name} \
-	--with-mail-gid=%{gid} \
-	--with-cgi-gid=apache \
-	--with-username=%{uid} \
-	--with-groupname=%{gid} \
+    --prefix=%{_libdir}/%{name} \
+    --with-var-prefix=%{_var}/lib/%{name} \
+    --with-mail-gid=%{gid} \
+    --with-cgi-gid=apache \
+    --with-username=%{uid} \
+    --with-groupname=%{gid} \
     --without-permcheck \
-	--libdir=%{_libdir}
+    --libdir=%{_libdir}
 
-#make
+make
 # fix encoding typo
 perl -pi -e 's/gb2132/gb2312/' misc/email-2.5.6/email/Charset.py
 
@@ -99,30 +91,28 @@ perl -pi -e 's/gb2132/gb2312/' misc/email-2.5.6/email/Charset.py
 rm -rf %{buildroot}
 %makeinstall_std
 
-# mv icons
-install -d -m 755 %{buildroot}%{_var}/www/icons
-mv %{buildroot}%{_libdir}/%{name}/icons/* %{buildroot}%{_var}/www/icons/
-rm -rf %{buildroot}%{_libdir}/%{name}/icons
+# mv web content
+install -d -m 755 %{buildroot}%{_var}/www
+mv %{buildroot}%{_libdir}/%{name}/cgi-bin %{buildroot}%{_var}/www/%{name}
+mv %{buildroot}%{_libdir}/%{name}/icons %{buildroot}%{_var}/www/%{name}
 
 # apache conf
 install -d -m 755 %{buildroot}%{_webappconfdir}
 cat > %{buildroot}%{_webappconfdir}/%{name}.conf <<EOF
 # Mailman Apache configuration file
-Alias /%{name}	%{_libdir}/%{name}/cgi-bin
-Alias /pipermail	/var/lib/mailman/archives/public
+Alias /%{name}   %{_var}/www/%{name}
+Alias /pipermail %{_var}/lib/%{name}/archives/public
 
-# DirectoryIndex doesn't works with ScriptAlias
-# see http://issues.apache.org/bugzilla/show_bug.cgi?id=37290
-<Directory %{_libdir}/%{name}/cgi-bin>
+<Directory %{_var}/www/%{name}>
     Options ExecCgi
-    <FilesMatch .+>
+    <Files ~ "^(listinfo|admin|admindb|confirm|create|edithtml|options|private|rmlist|roster|subscribe)$">
         SetHandler cgi-script
-    </FilesMatch>
-    Allow from all
+    </Files>
     DirectoryIndex listinfo
+    Allow from all
 </Directory>
 
-<Directory /var/lib/mailman/archives/public>
+<Directory %{_var}/lib/mailman/archives/public>
     Options FollowSymlinks
     Allow from all
 </Directory>
@@ -137,9 +127,9 @@ install -d -m 755 %{buildroot}%{_sysconfdir}/smrsh
 (cd %{buildroot}%{_sysconfdir}/smrsh && ln -s ../..%{_libdir}/%{name}/mail/%{name} .)
 
 # move logs directory into /var/log
-install -d -m 755 %{buildroot}/var/log
-mv %{buildroot}%{_localstatedir}/lib/%{name}/logs %{buildroot}/var/log/%{name}
-(cd %{buildroot}%{_localstatedir}/lib/%{name} && ln -s ../../log/%{name} logs)
+install -d -m 755 %{buildroot}%{_var}/log
+mv %{buildroot}%{_var}/lib/%{name}/logs %{buildroot}%{_var}/log/%{name}
+(cd %{buildroot}%{_var}/lib/%{name} && ln -s ../../log/%{name} logs)
 
 # move config file into /etc
 install -d -m 755 %{buildroot}%{_sysconfdir}
@@ -149,80 +139,80 @@ rm -f %{buildroot}%{_libdir}/%{name}/Mailman/mm_cfg.py.dist
 
 # fix permissions mess
 chmod -R go=u-w %{buildroot}%{_libdir}/%{name}
-chmod go=u-w %{buildroot}%{_localstatedir}/lib/%{name}
+chmod go=u-w %{buildroot}%{_var}/lib/%{name}
 
 # logrotate
 install -d m 755 %{buildroot}%{_sysconfdir}/logrotate.d
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} <<EOF
-/var/log/mailman/smtp-failure {
-	daily
-	missingok
-	rotate 7
+%{_var}/log/mailman/smtp-failure {
+    daily
+    missingok
+    rotate 7
 }
 
-/var/log/mailman/smtp {
-	daily
-	missingok
-	rotate 7
+%{_var}/log/mailman/smtp {
+    daily
+    missingok
+    rotate 7
 }
 
-/var/log/mailman/locks {
-	daily
-	missingok
-	rotate 7
+%{_var}/log/mailman/locks {
+    daily
+    missingok
+    rotate 7
 }
 
-/var/log/mailman/fromusenet {
-	daily
-	missingok
-	rotate 7
+%{_var}/log/mailman/fromusenet {
+    daily
+    missingok
+    rotate 7
 }
 
-/var/log/mailman/qrunner {
-	daily
-	missingok
-	rotate 7
+%{_var}/log/mailman/qrunner {
+    daily
+    missingok
+    rotate 7
 }
-/var/log/mailman/bounce {
-	weekly
-	missingok
-	rotate 4
-}
-
-/var/log/mailman/digest {
-	monthly
-	missingok
-	rotate 4
+%{_var}/log/mailman/bounce {
+    weekly
+    missingok
+    rotate 4
 }
 
-/var/log/mailman/error {
-	weekly
-	missingok
-	rotate 4
+%{_var}/log/mailman/digest {
+    monthly
+    missingok
+    rotate 4
 }
 
-/var/log/mailman/vette {
-	weekly
-	missingok
-	rotate 4
+%{_var}/log/mailman/error {
+    weekly
+    missingok
+    rotate 4
 }
 
-/var/log/mailman/mischief {
-	weekly
-	missingok
-	rotate 4
+%{_var}/log/mailman/vette {
+    weekly
+    missingok
+    rotate 4
 }
 
-/var/log/mailman/subscribe {
-	monthly
-	missingok
-	rotate 12
+%{_var}/log/mailman/mischief {
+    weekly
+    missingok
+    rotate 4
 }
 
-/var/log/mailman/post {
-	monthly
-	missingok
-	rotate 12
+%{_var}/log/mailman/subscribe {
+    monthly
+    missingok
+    rotate 12
+}
+
+%{_var}/log/mailman/post {
+    monthly
+    missingok
+    rotate 12
 }
 EOF
 
@@ -237,7 +227,7 @@ install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 install -d -m 755 %{buildroot}%{_sbindir}
 pushd %{buildroot}%{_sbindir}
 for bin in ../..%{_libdir}/%{name}/bin/*; do
-	ln -s $bin .
+    ln -s $bin .
 done
 popd
 
@@ -281,8 +271,8 @@ if [ $1 = "2" ]; then
   if [ ! -L %{_libdir}/%{name}/Mailman/mm_cfg.py ]; then
     mv %{_libdir}/%{name}/Mailman/mm_cfg.py %{_sysconfdir}/%{name}.tmp
   fi
-  if [ ! -L %{_localstatedir}/lib/%{name}/logs ]; then
-    mv %{_localstatedir}/lib/%{name}/logs /var/log/%{name}
+  if [ ! -L %{_var}/lib/%{name}/logs ]; then
+    mv %{_var}/lib/%{name}/logs %{_var}/log/%{name}
   fi
 fi
 
@@ -317,7 +307,7 @@ EOF
     crontab -u %{uid} %{_libdir}/%{name}/cron/crontab.in
 
     # add aliases
-    %create_ghostfile %{_localstatedir}/lib/%{name}/data/aliases %{uid} %{gid} 660
+    %create_ghostfile %{_var}/lib/%{name}/data/aliases %{uid} %{gid} 660
     mta="`readlink /etc/alternatives/sendmail-command 2>/dev/null | cut -d . -f 2`"
     if [ "$mta" == "postfix" ]; then
         cat >>Mailman/mm_cfg.py <<EOF
@@ -326,12 +316,12 @@ EOF
         maps=`/usr/sbin/postconf -h alias_maps`
         postconf -e \
             "recipient_delimiter = +" \
-            "unknown_local_recipient_reject_code = 450" \
-            "alias_maps = $maps, hash:%{_localstatedir}/lib/%{name}/data/aliases"
-        /usr/bin/postalias %{_localstatedir}/lib/%{name}/data/aliases
+            "unknown_local_recipient_reject_code = 550" \
+            "alias_maps = $maps, hash:%{_var}/lib/%{name}/data/aliases"
+        /usr/sbin/postalias %{_var}/lib/%{name}/data/aliases
     else
         cat >> %{_sysconfdir}/aliases <<EOF
-:include:   %{_localstatedir}/lib/%{name}/data/aliases
+:include:   %{_var}/lib/%{name}/data/aliases
 EOF
         /usr/bin/newaliases
     fi
@@ -370,14 +360,14 @@ if [ $1 = 0 ]; then
     mta="`readlink /etc/alternatives/sendmail-command 2>/dev/null | cut -d . -f 2`"
     if [ "$mta" == "postfix" ]; then
         database=`/usr/sbin/postconf -h alias_database | \
-            sed -e 's|, hash:%{_localstatedir}/lib/%{name}/data/aliases||'`
+            sed -e 's|, hash:%{_var}/lib/%{name}/data/aliases||'`
         maps=`/usr/sbin/postconf -h alias_maps | \
-            sed -e 's|, hash:%{_localstatedir}/lib/%{name}/data/aliases||'`
+            sed -e 's|, hash:%{_var}/lib/%{name}/data/aliases||'`
         postconf -e \
             "alias_database = $database" \
             "alias_maps = $maps"
     else
-        sed -i -e '/:include:   %{_localstatedir}/lib/%{name}/data/aliases/d' \
+        sed -i -e '/:include:   %{_var}/lib/%{name}/data/aliases/d' \
             %{_sysconfdir}/aliases
     fi
     /usr/bin/newaliases
@@ -400,14 +390,12 @@ rm -rf %{buildroot}
 %{_libdir}/%{name}/templates
 %{_libdir}/%{name}/bin
 %{_libdir}/%{name}/Mailman
-%dir %{_libdir}/%{name}/cgi-bin
-%attr(02755,root,%{gid}) %{_libdir}/%{name}/cgi-bin/*
 %dir %{_libdir}/%{name}/mail
 %attr(02755,root,%{gid}) %{_libdir}/%{name}/mail/*
 # variable files
-%dir %{_localstatedir}/lib/%{name}
-%attr(-,root,%{gid}) %{_localstatedir}/lib/%{name}/*
-%attr(-,root,%{gid}) /var/log/%{name}
+%dir %{_var}/lib/%{name}
+%attr(-,root,%{gid}) %{_var}/lib/%{name}/*
+%attr(-,root,%{gid}) %{_var}/log/%{name}
 # configuration files
 %{_initrddir}/%{name}
 %{_sysconfdir}/bash_completion.d/%{name}
@@ -416,6 +404,16 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}
 %{_sysconfdir}/smrsh/%{name}
 %{_sbindir}/*
-%{_var}/www/icons/*
-
-
+%dir %{_var}/www/%{name}
+%attr(-,root,%{gid}) %{_var}/www/%{name}/admin
+%attr(-,root,%{gid}) %{_var}/www/%{name}/admindb
+%attr(-,root,%{gid}) %{_var}/www/%{name}/confirm
+%attr(-,root,%{gid}) %{_var}/www/%{name}/create
+%attr(-,root,%{gid}) %{_var}/www/%{name}/edithtml
+%attr(-,root,%{gid}) %{_var}/www/%{name}/listinfo
+%attr(-,root,%{gid}) %{_var}/www/%{name}/options
+%attr(-,root,%{gid}) %{_var}/www/%{name}/private
+%attr(-,root,%{gid}) %{_var}/www/%{name}/rmlist
+%attr(-,root,%{gid}) %{_var}/www/%{name}/roster
+%attr(-,root,%{gid}) %{_var}/www/%{name}/subscribe
+%{_var}/www/%{name}/icons
