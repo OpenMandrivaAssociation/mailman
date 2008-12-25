@@ -4,7 +4,7 @@
 
 Name:       mailman
 Version:    2.1.11
-Release:    %mkrel 1
+Release:    %mkrel 2
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
@@ -17,10 +17,9 @@ Patch1:     %{name}-2.1.9-rename-arch.patch
 Patch6:     %{name}-2.1.2-postfix-aliases.patch
 Patch8:     %{name}-2.1.5-build.patch
 Patch9:     %{name}-2.1.11-change-default-icons-url.patch
-BuildRequires:  libpython-devel
 Requires:   mail-server
 Requires:   apache
-Requires:   python
+%py_requires -d
 # webapp macros and scriptlets
 Requires(post):     mail-server
 Requires(post):     rpm-helper >= 0.18
