@@ -4,14 +4,13 @@
 
 Name:       mailman
 Version:    2.1.11
-Release:    %mkrel 2
+Release:    %mkrel 3
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
 URL:        http://www.list.org/
 Source0:    http://prdownloads.sourceforge.net/mailman/%{name}-%{version}.tgz
 Source1:    %{name}.init
-Source3:    %{name}.bash-completion
 Patch0:     %{name}-buildroot-check.patch
 Patch1:     %{name}-2.1.9-rename-arch.patch
 Patch6:     %{name}-2.1.2-postfix-aliases.patch
@@ -215,10 +214,6 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} <<EOF
 }
 EOF
 
-# bash completion
-install -d -m 755 %{buildroot}%{_sysconfdir}/bash_completion.d
-install -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/bash_completion.d/%{name}
-
 # install init script
 install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 
@@ -397,7 +392,6 @@ rm -rf %{buildroot}
 %attr(-,root,%{gid}) %{_var}/log/%{name}
 # configuration files
 %{_initrddir}/%{name}
-%{_sysconfdir}/bash_completion.d/%{name}
 %config(noreplace) %{_webappconfdir}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}
