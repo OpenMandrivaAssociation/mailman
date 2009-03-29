@@ -3,8 +3,8 @@
 %define email_version   2.5.8
 
 Name:       mailman
-Version:    2.1.11
-Release:    %mkrel 3
+Version:    2.1.12
+Release:    %mkrel 1
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
@@ -12,7 +12,7 @@ URL:        http://www.list.org/
 Source0:    http://prdownloads.sourceforge.net/mailman/%{name}-%{version}.tgz
 Source1:    %{name}.init
 Patch0:     %{name}-buildroot-check.patch
-Patch1:     %{name}-2.1.9-rename-arch.patch
+Patch1:     mailman-2.1.12-rename-arch.patch
 Patch6:     %{name}-2.1.2-postfix-aliases.patch
 Patch8:     %{name}-2.1.5-build.patch
 Patch9:     %{name}-2.1.11-change-default-icons-url.patch
@@ -65,6 +65,9 @@ Conditional build options:
 %patch6 -p1 -b .chmod
 %patch8
 %patch9 -p1 -b .default
+#%patch10 -p0 -b .deprecation
+#%patch11 -p0 -b .email
+#%patch12 -p0 -b .exceptions
 
 %build
 %serverbuild
@@ -285,7 +288,7 @@ if [ $1 = 1 ]; then
 
     # mailman basic configuration
     cat >>Mailman/mm_cfg.py <<EOF
-DEFAULT_EMAIL_HOST = '$dnsdomainname'
+DEFAULT_EMAIL_HOST = '$domainname'
 DEFAULT_URL_HOST = '$hostname'
 add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
 EOF
