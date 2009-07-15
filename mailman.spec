@@ -378,6 +378,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %doc ACKNOWLEDGMENTS BUGS FAQ INSTALL NEWS README* TODO UPGRADING
 %doc gnu-COPYING-GPL contrib/README.check_perms_grsecurity
+%doc doc/*
 # constant files
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/cron
