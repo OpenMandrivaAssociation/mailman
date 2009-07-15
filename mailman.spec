@@ -139,8 +139,9 @@ mv %{buildroot}%{_libdir}/%{name}/Mailman/mm_cfg.py %{buildroot}%{_sysconfdir}/%
 rm -f %{buildroot}%{_libdir}/%{name}/Mailman/mm_cfg.py.dist
 
 # fix permissions mess
-chmod -R go=u-w %{buildroot}%{_libdir}/%{name}
-chmod go=u-w %{buildroot}%{_var}/lib/%{name}
+chmod -R go=u-ws %{buildroot}%{_libdir}/%{name}
+chmod -R go=u-ws %{buildroot}%{_var}/lib/%{name}
+chmod 750 %{buildroot}%{_var}/lib/%{name}/archives/private
 
 # logrotate
 install -d m 755 %{buildroot}%{_sysconfdir}/logrotate.d
@@ -390,9 +391,9 @@ rm -rf %{buildroot}
 %dir %{_libdir}/%{name}/mail
 %attr(02755,root,%{gid}) %{_libdir}/%{name}/mail/*
 # variable files
-%dir %{_var}/lib/%{name}
-%attr(-,root,%{gid}) %{_var}/lib/%{name}/*
-%attr(-,root,%{gid}) %{_var}/log/%{name}
+%attr(-,%{uid},%{gid}) %{_var}/lib/%{name}
+%attr(-,%{uid},apache) %{_var}/lib/%{name}/archives/private
+%attr(-,%{uid},%{gid}) %{_var}/log/%{name}
 # configuration files
 %{_initrddir}/%{name}
 %config(noreplace) %{_webappconfdir}/%{name}.conf
