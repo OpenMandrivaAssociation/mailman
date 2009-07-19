@@ -4,7 +4,7 @@
 
 Name:       mailman
 Version:    2.1.12
-Release:    %mkrel 2
+Release:    %mkrel 3
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
@@ -92,24 +92,26 @@ perl -pi -e 's/gb2132/gb2312/' misc/email-2.5.6/email/Charset.py
 rm -rf %{buildroot}
 %makeinstall_std
 
-# mv web content
-install -d -m 755 %{buildroot}%{_var}/www
-mv %{buildroot}%{_libdir}/%{name}/cgi-bin %{buildroot}%{_var}/www/%{name}
-mv %{buildroot}%{_libdir}/%{name}/icons %{buildroot}%{_var}/www/%{name}
-
 # apache conf
 install -d -m 755 %{buildroot}%{_webappconfdir}
 cat > %{buildroot}%{_webappconfdir}/%{name}.conf <<EOF
 # Mailman Apache configuration file
-Alias /%{name}   %{_var}/www/%{name}
-Alias /pipermail %{_var}/lib/%{name}/archives/public
+Alias /%{name}/icons %{_libdir}/%{name}/icons
+Alias /%{name}       %{_libdir}/%{name}/cgi-bin
+Alias /pipermail     %{_var}/lib/%{name}/archives/public
 
-<Directory %{_var}/www/%{name}>
+
+<Directory %{_libdir}/%{name}/cgi-bin>
     Options ExecCgi
+    # https://issues.apache.org/bugzilla/show_bug.cgi?id=37290
     <Files ~ "^(listinfo|admin|admindb|confirm|create|edithtml|options|private|rmlist|roster|subscribe)$">
         SetHandler cgi-script
     </Files>
     DirectoryIndex listinfo
+    Allow from all
+</Directory>
+
+<Directory %{_libdir}/%{name}/icons>
     Allow from all
 </Directory>
 
@@ -332,8 +334,10 @@ EOF
 
     if [ ! -f /var/lib/mailman/lists/mailman/config.pck ]; then
         # initial list creation and configuration
-        su %{uid} -c "%{_sbindir}/newlist mailman root@$hostname $passwd" > /dev/null
-        %{_sbindir}/config_list -i /var/lib/mailman/data/sitelist.cfg mailman
+        su %{uid} \
+            -c "%{_sbindir}/newlist mailman root@$hostname $passwd" > /dev/null
+        su %{uid} \
+            -c "%{_sbindir}/config_list -i /var/lib/mailman/data/sitelist.cfg mailman"
     fi
 
 else
@@ -389,8 +393,11 @@ rm -rf %{buildroot}
 %{_libdir}/%{name}/templates
 %{_libdir}/%{name}/bin
 %{_libdir}/%{name}/Mailman
+%{_libdir}/%{name}/icons
 %dir %{_libdir}/%{name}/mail
-%attr(02755,root,%{gid}) %{_libdir}/%{name}/mail/*
+%attr(2755,root,%{gid}) %{_libdir}/%{name}/mail/*
+%dir %{_libdir}/%{name}/cgi-bin
+%attr(2755,root,%{gid}) %{_libdir}/%{name}/cgi-bin/*
 # variable files
 %attr(-,%{uid},%{gid}) %{_var}/lib/%{name}
 %attr(-,%{uid},apache) %{_var}/lib/%{name}/archives/private
@@ -402,16 +409,3 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}
 %{_sysconfdir}/smrsh/%{name}
 %{_sbindir}/*
-%dir %{_var}/www/%{name}
-%attr(-,root,%{gid}) %{_var}/www/%{name}/admin
-%attr(-,root,%{gid}) %{_var}/www/%{name}/admindb
-%attr(-,root,%{gid}) %{_var}/www/%{name}/confirm
-%attr(-,root,%{gid}) %{_var}/www/%{name}/create
-%attr(-,root,%{gid}) %{_var}/www/%{name}/edithtml
-%attr(-,root,%{gid}) %{_var}/www/%{name}/listinfo
-%attr(-,root,%{gid}) %{_var}/www/%{name}/options
-%attr(-,root,%{gid}) %{_var}/www/%{name}/private
-%attr(-,root,%{gid}) %{_var}/www/%{name}/rmlist
-%attr(-,root,%{gid}) %{_var}/www/%{name}/roster
-%attr(-,root,%{gid}) %{_var}/www/%{name}/subscribe
-%{_var}/www/%{name}/icons
