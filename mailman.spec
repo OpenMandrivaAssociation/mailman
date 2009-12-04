@@ -4,7 +4,7 @@
 
 Name:       mailman
 Version:    2.1.12
-Release:    %mkrel 3
+Release:    %mkrel 4
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
@@ -102,22 +102,34 @@ Alias /pipermail     %{_var}/lib/%{name}/archives/public
 
 
 <Directory %{_libdir}/%{name}/cgi-bin>
+    Order allow,deny
+    Allow from 127.0.0.1
+    Deny from all
+    ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
+
     Options ExecCgi
+    DirectoryIndex listinfo
+
     # https://issues.apache.org/bugzilla/show_bug.cgi?id=37290
     <Files ~ "^(listinfo|admin|admindb|confirm|create|edithtml|options|private|rmlist|roster|subscribe)$">
         SetHandler cgi-script
     </Files>
-    DirectoryIndex listinfo
-    Allow from all
 </Directory>
 
 <Directory %{_libdir}/%{name}/icons>
-    Allow from all
+    Order allow,deny
+    Allow from 127.0.0.1
+    Deny from all
+    ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
 </Directory>
 
 <Directory %{_var}/lib/mailman/archives/public>
+    Order allow,deny
+    Allow from 127.0.0.1
+    Deny from all
+    ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
+
     Options FollowSymlinks
-    Allow from all
 </Directory>
 EOF
 
