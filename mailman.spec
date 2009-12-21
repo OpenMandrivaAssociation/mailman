@@ -4,7 +4,7 @@
 
 Name:       mailman
 Version:    2.1.12
-Release:    %mkrel 4
+Release:    %mkrel 5
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
@@ -16,6 +16,9 @@ Patch1:     mailman-2.1.12-rename-arch.patch
 Patch6:     %{name}-2.1.2-postfix-aliases.patch
 Patch8:     %{name}-2.1.5-build.patch
 Patch9:     %{name}-2.1.11-change-default-icons-url.patch
+# http://non-gnu.uvt.nl/mailman-pgp-smime/
+Patch100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.12-pgp-smime_2009-09-05.patch.gz
+Source100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.12-pgp-smime_2009-09-05.patch.gz.asc
 Requires:   mail-server
 Requires:   apache
 %py_requires -d
@@ -26,6 +29,10 @@ Requires(preun):    rpm-helper
 Requires(postun):   rpm-helper >= 0.16
 BuildRequires:      rpm-helper >= 0.18
 BuildRequires:      rpm-mandriva-setup >= 1.23
+Requires:	python-GnuPG-Interface
+Requires:	gnupg
+Requires:	opensl
+Requires:	openssl
 BuildRoot:          %{_tmppath}/%{name}-%{version}
 
 %description
@@ -65,9 +72,7 @@ Conditional build options:
 %patch6 -p1 -b .chmod
 %patch8
 %patch9 -p1 -b .default
-#%patch10 -p0 -b .deprecation
-#%patch11 -p0 -b .email
-#%patch12 -p0 -b .exceptions
+%patch100 -p1
 
 %build
 %serverbuild
@@ -392,7 +397,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc ACKNOWLEDGMENTS BUGS FAQ INSTALL NEWS README* TODO UPGRADING
+%doc ACKNOWLEDGMENTS BUGS FAQ INSTALL NEWS* README* TODO* UPGRADING
 %doc gnu-COPYING-GPL contrib/README.check_perms_grsecurity
 %doc doc/*
 # constant files
