@@ -31,7 +31,6 @@ BuildRequires:      rpm-helper >= 0.18
 BuildRequires:      rpm-mandriva-setup >= 1.23
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
-Requires:	opensl
 Requires:	openssl
 BuildRoot:          %{_tmppath}/%{name}-%{version}
 
