@@ -3,13 +3,13 @@
 %define email_version   2.5.8
 
 Name:       mailman
-Version:    2.1.12
-Release:    %mkrel 6
+Version:    2.1.13
+Release:    %mkrel 1
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
 URL:        http://www.list.org/
-Source0:    http://prdownloads.sourceforge.net/mailman/%{name}-%{version}.tgz
+Source0:    http://ftp.gnu.org/gnu/mailman/%{name}-%{version}.tgz
 Source1:    %{name}.init
 Patch0:     %{name}-buildroot-check.patch
 Patch1:     mailman-2.1.12-rename-arch.patch
