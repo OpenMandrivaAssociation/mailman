@@ -22,13 +22,10 @@ Source100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.12-pgp-smime_2009-09-05
 Requires:   mail-server
 Requires:   apache
 %py_requires -d
-# webapp macros and scriptlets
-Requires(post):     mail-server
-Requires(post):     rpm-helper >= 0.18
-Requires(preun):    rpm-helper
-Requires(postun):   rpm-helper >= 0.16
-BuildRequires:      rpm-helper >= 0.18
-BuildRequires:      rpm-mandriva-setup >= 1.23
+%if %mdkversion < 201010
+Requires(post):   rpm-helper
+Requires(postun):   rpm-helper
+%endif
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
 Requires:	openssl
