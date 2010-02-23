@@ -103,9 +103,9 @@ Alias /pipermail     %{_var}/lib/%{name}/archives/public
 
 
 <Directory %{_libdir}/%{name}/cgi-bin>
-    Order allow,deny
-    Allow from 127.0.0.1
+    Order deny,allow
     Deny from all
+    Allow from 127.0.0.1
     ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
 
     Options ExecCgi
@@ -118,16 +118,16 @@ Alias /pipermail     %{_var}/lib/%{name}/archives/public
 </Directory>
 
 <Directory %{_libdir}/%{name}/icons>
-    Order allow,deny
-    Allow from 127.0.0.1
+    Order deny,allow
     Deny from all
+    Allow from 127.0.0.1
     ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
 </Directory>
 
 <Directory %{_var}/lib/mailman/archives/public>
-    Order allow,deny
-    Allow from 127.0.0.1
+    Order deny,allow
     Deny from all
+    Allow from 127.0.0.1
     ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
 
     Options FollowSymlinks
