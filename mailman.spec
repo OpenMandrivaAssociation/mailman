@@ -17,8 +17,8 @@ Patch6:     %{name}-2.1.2-postfix-aliases.patch
 Patch8:     %{name}-2.1.5-build.patch
 Patch9:     %{name}-2.1.11-change-default-icons-url.patch
 # http://non-gnu.uvt.nl/mailman-pgp-smime/
-Patch100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.12-pgp-smime_2009-09-05.patch.gz
-Source100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.12-pgp-smime_2009-09-05.patch.gz.asc
+Patch100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.13-pgp-smime_2010-03-01.patch.gz
+Source100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.13-pgp-smime_2010-03-01.patch.gz.asc
 Requires:   mail-server
 Requires:   apache
 %py_requires -d
@@ -275,9 +275,6 @@ The alias db (/var/lib/mailman/data/aliases.db) should be owned by the same uid
 and gid as the one used by mailman, mail.mail here. You may experience toubles
 when upgrading from old releases of the packages.
 EOF
-
-# for some unknow reason, those files are sometime missing
-[ -d %{buildroot}%{_libdir}/%{name}/pythonlib/korean ] || exit
 
 %pre
 if [ $1 = "2" ]; then
