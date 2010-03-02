@@ -143,7 +143,6 @@ rm -f %{buildroot}%{_libdir}/%{name}/Mailman/mm_cfg.py.dist
 
 # fix permissions mess
 chmod -R go=u-ws %{buildroot}%{_libdir}/%{name}
-chmod -R go=u-ws %{buildroot}%{_var}/lib/%{name}
 chmod 750 %{buildroot}%{_var}/lib/%{name}/archives/private
 
 # logrotate
