@@ -83,6 +83,7 @@ autoreconf
     --with-username=%{uid} \
     --with-groupname=%{gid} \
     --without-permcheck \
+    --with-cgi-ext=.cgi \
     --libdir=%{_libdir}
 
 make
@@ -109,12 +110,7 @@ Alias /pipermail     %{_var}/lib/%{name}/archives/public
     ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
 
     Options ExecCgi
-    DirectoryIndex listinfo
-
-    # https://issues.apache.org/bugzilla/show_bug.cgi?id=37290
-    <Files ~ "^(listinfo|admin|admindb|confirm|create|edithtml|options|private|rmlist|roster|subscribe)$">
-        SetHandler cgi-script
-    </Files>
+    DirectoryIndex listinfo.cgi
 </Directory>
 
 <Directory %{_libdir}/%{name}/icons>
