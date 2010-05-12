@@ -4,7 +4,7 @@
 
 Name:       mailman
 Version:    2.1.13
-Release:    %mkrel 1
+Release:    %mkrel 2
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
@@ -144,75 +144,37 @@ chmod 750 %{buildroot}%{_var}/lib/%{name}/archives/private
 # logrotate
 install -d m 755 %{buildroot}%{_sysconfdir}/logrotate.d
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} <<EOF
-%{_var}/log/mailman/smtp-failure {
+# daily rotated log files
+%{_var}/log/mailman/smtp-failure %{_var}/log/mailman/smtp %{_var}/log/mailman/locks %{_var}/log/mailman/fromusenet %{_var}/log/mailman/qrunner {
     daily
     missingok
     rotate 7
+    sharedscripts
+    postrotate
+    [ -f '/var/run/mailman/mailman.pid' ] && %{_libdir}/mailman/bin/mailmanctl -q reopen || exit 0
+    endscript
 }
 
-%{_var}/log/mailman/smtp {
-    daily
-    missingok
-    rotate 7
-}
-
-%{_var}/log/mailman/locks {
-    daily
-    missingok
-    rotate 7
-}
-
-%{_var}/log/mailman/fromusenet {
-    daily
-    missingok
-    rotate 7
-}
-
-%{_var}/log/mailman/qrunner {
-    daily
-    missingok
-    rotate 7
-}
-%{_var}/log/mailman/bounce {
+# weekly rotated log files
+%{_var}/log/mailman/bounce %{_var}/log/mailman/error %{_var}/log/mailman/vette %{_var}/log/mailman/mischief {
     weekly
     missingok
     rotate 4
+    sharedscripts
+    postrotate
+    [ -f '/var/run/mailman/mailman.pid' ] && %{_libdir}/mailman/bin/mailmanctl -q reopen || exit 0
+    endscript
 }
 
-%{_var}/log/mailman/digest {
-    monthly
-    missingok
-    rotate 4
-}
-
-%{_var}/log/mailman/error {
-    weekly
-    missingok
-    rotate 4
-}
-
-%{_var}/log/mailman/vette {
-    weekly
-    missingok
-    rotate 4
-}
-
-%{_var}/log/mailman/mischief {
-    weekly
-    missingok
-    rotate 4
-}
-
-%{_var}/log/mailman/subscribe {
+# monthly rotated log files
+%{_var}/log/mailman/digest %{_var}/log/mailman/subscribe %{_var}/log/mailman/post {
     monthly
     missingok
     rotate 12
-}
-
-%{_var}/log/mailman/post {
-    monthly
-    missingok
-    rotate 12
+    sharedscripts
+    postrotate
+    [ -f '/var/run/mailman/mailman.pid' ] && %{_libdir}/mailman/bin/mailmanctl -q reopen || exit 0
+    endscript
 }
 EOF
 
