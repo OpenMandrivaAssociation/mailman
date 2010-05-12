@@ -126,10 +126,6 @@ EOF
 install -d -m 755 %{buildroot}%{_initrddir}
 install -m 755 misc/mailman %{buildroot}%{_initrddir}
 
-# (sb) sendmail 
-install -d -m 755 %{buildroot}%{_sysconfdir}/smrsh
-(cd %{buildroot}%{_sysconfdir}/smrsh && ln -s ../..%{_libdir}/%{name}/mail/%{name} .)
-
 # move logs directory into /var/log
 install -d -m 755 %{buildroot}%{_var}/log
 mv %{buildroot}%{_var}/lib/%{name}/logs %{buildroot}%{_var}/log/%{name}
@@ -408,5 +404,4 @@ rm -rf %{buildroot}
 %config(noreplace) %{_webappconfdir}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}
-%{_sysconfdir}/smrsh/%{name}
 %{_sbindir}/*
