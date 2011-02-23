@@ -4,7 +4,7 @@
 
 Name:       mailman
 Version:    2.1.13
-Release:    %mkrel 5
+Release:    %mkrel 6
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
@@ -20,6 +20,7 @@ Patch9:     %{name}-2.1.11-change-default-icons-url.patch
 Patch100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.13-pgp-smime_2010-03-01.patch.gz
 Source100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.13-pgp-smime_2010-03-01.patch.gz.asc
 Patch101:	mailman-2.1.13-CVE-2010-3089.diff
+Patch102:	mailman-2.1.13-CVE-2011-0707.diff
 Requires:   mail-server
 Requires:   apache
 %py_requires -d
@@ -71,6 +72,7 @@ Conditional build options:
 %patch9 -p1 -b .default
 %patch100 -p1
 %patch101 -p1
+%patch102 -p0
 
 %build
 %serverbuild
