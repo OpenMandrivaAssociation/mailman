@@ -4,7 +4,7 @@
 
 Name:       mailman
 Version:    2.1.13
-Release:    %mkrel 6
+Release:    %mkrel 7
 Summary:    The GNU Mailing List Management System
 Group:      System/Servers
 License:    GPL
