@@ -1,0 +1,23 @@
+--- mailman-2.1.1/configure.buildroot	2002-12-31 16:49:40.000000000 -0500
++++ mailman-2.1.1/configure	2003-04-14 08:02:20.000000000 -0400
+@@ -1179,7 +1179,7 @@
+     VAR_PREFIX=$ac_default_prefix
+     prefixcheck=$ac_default_prefix
+ else
+-    prefixcheck=$VAR_PREFIX
++    prefixcheck=$RPM_BUILD_ROOT$prefix
+ fi
+ 
+ # new macro for finding group names
+@@ -1343,10 +1343,7 @@
+     perms = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
+     if (mode & perms) <> perms:
+         problems.append("Permissions should be at least 02775: " + prefix)
+-if not problems:
+-    msg = "okay\n"
+-else:
+-    msg = '***** ' + '\n***** '.join(problems) + '\n'
++msg = "okay\n"
+ fp = open("conftest.out", "w")
+ fp.write(msg)
+ fp.close()

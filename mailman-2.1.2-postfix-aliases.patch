@@ -1,0 +1,24 @@
+--- mailman-2.1.2/Mailman/MTA/Postfix.py.chmod	2003-03-31 23:49:43.000000000 +0200
++++ mailman-2.1.2/Mailman/MTA/Postfix.py	2003-10-04 02:26:23.000000000 +0200
+@@ -46,6 +46,7 @@
+ def _update_maps():
+     msg = 'command failed: %s (status: %s, %s)'
+     acmd = mm_cfg.POSTFIX_ALIAS_CMD + ' ' + ALIASFILE
++    dbfile = ALIASFILE + '.db'	
+     status = (os.system(acmd) >> 8) & 0xff
+     if status:
+         errstr = os.strerror(status)
+@@ -58,7 +59,12 @@
+             errstr = os.strerror(status)
+             syslog('error', msg, vcmd, status, errstr)
+             raise RuntimeError, msg % (vcmd, status, errstr)
+-
++    # set permissions to g+w on aliases.db on 1st run
++    # should get ignored from web interface
++    username = pwd.getpwuid(os.getuid())[0]
++    if username == "mail":
++	if os.path.exists(dbfile):
++	    os.chmod(dbfile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+ 
+ 
+ def makelock():

@@ -1,0 +1,11 @@
+--- Makefile.in~	2003-03-31 21:26:57.000000000 +0200
++++ Makefile.in	2004-07-24 11:32:46.169340327 +0200
+@@ -124,7 +124,7 @@
+ 	do \
+ 	    (cd $$d; $(MAKE) DESTDIR=$(DESTDIR) install); \
+ 	done
+-	$(PYTHON) -c 'from compileall import *; compile_dir("$(DESTDIR)$(prefix)/Mailman")'
++	$(PYTHON) -c 'from compileall import *; compile_dir("$(DESTDIR)$(prefix)/Mailman", 10, "$(prefix)/Mailman")'
+ 
+ # Only run bin/update if we aren't installing in DESTDIR, as this
+ # means there are probably no lists to deal with, and it wouldn't

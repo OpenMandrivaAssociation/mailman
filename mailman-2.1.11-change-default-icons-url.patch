@@ -1,0 +1,12 @@
+diff -Naur --exclude '*~' mailman-2.1.11/Mailman/Defaults.py.in mailman-2.1.11-change-default-icons-url/Mailman/Defaults.py.in
+--- mailman-2.1.11/Mailman/Defaults.py.in	2008-06-30 18:29:46.000000000 +0200
++++ mailman-2.1.11-change-default-icons-url/Mailman/Defaults.py.in	2008-07-06 14:59:51.000000000 +0200
+@@ -54,7 +54,7 @@
+ # disable Mailman's logo footer altogther, hack
+ # Mailman/htmlformat.py:MailmanLogo(), which also contains the hardcoded links
+ # and image names.
+-IMAGE_LOGOS = '/icons/'
++IMAGE_LOGOS = '/mailman/icons/'
+ 
+ # The name of the Mailman favicon
+ SHORTCUT_ICON = 'mm-icon.png'

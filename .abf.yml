@@ -1,0 +1,4 @@
+sources:
+  "mailman-2.1.13-pgp-smime_2010-03-01.patch.gz.asc:"	120b894e149bfd6d1162a34f4d524f75cff32d64
+  "mailman-2.1.13.tgz:"	923dd78a17cbab576354b53a80443fe05f134398
+  "mailman.init:"	36aa9be10c705eead3d2b7e615f8789ee71fb014
