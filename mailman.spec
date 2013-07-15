@@ -2,30 +2,29 @@
 %define gid     mail
 %define email_version   2.5.8
 
-Name:       mailman
-Version:    2.1.15
-Release:    1
-Summary:    The GNU Mailing List Management System
-Group:      System/Servers
-License:    GPL
-URL:        http://www.list.org/
-Source0:    http://ftp.gnu.org/gnu/mailman/%{name}-%{version}.tgz
-Source1:    %{name}.init
-Patch0:     %{name}-buildroot-check.patch
-Patch1:     mailman-2.1.12-rename-arch.patch
-Patch6:     %{name}-2.1.2-postfix-aliases.patch
-Patch8:     %{name}-2.1.5-build.patch
-Patch9:     %{name}-2.1.11-change-default-icons-url.patch
+Summary:	The GNU Mailing List Management System
+Name:		mailman
+Version:	2.1.15
+Release:	2
+Group:		System/Servers
+License:	GPLv2
+Url:		http://www.list.org/
+Source0:	http://ftp.gnu.org/gnu/mailman/%{name}-%{version}.tgz
+Source1:	%{name}.init
+Patch0:		%{name}-buildroot-check.patch
+Patch1:		mailman-2.1.12-rename-arch.patch
+Patch6:		%{name}-2.1.2-postfix-aliases.patch
+Patch8:		%{name}-2.1.5-build.patch
+Patch9:		%{name}-2.1.11-change-default-icons-url.patch
 # http://non-gnu.uvt.nl/mailman-pgp-smime/
 Patch100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.15-pgp-smime_2012-08-28.patch
 Source100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.15-pgp-smime_2012-08-28.patch.md5
-Requires:   mail-server
-Requires:   apache
-%py_requires -d
+Requires:	mail-server
+Requires:	apache
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
 Requires:	openssl
-BuildRoot:          %{_tmppath}/%{name}-%{version}
+%py_requires -d
 
 %description
 Mailman -- The GNU Mailing List Management System --
@@ -59,12 +58,7 @@ Conditional build options:
 
 %prep
 %setup -q
-%patch0 -p1 -b .buildroot
-%patch1 -p1 -b .rename-arch
-%patch6 -p1 -b .chmod
-%patch8
-%patch9 -p1 -b .default
-%patch100 -p1
+%apply_patches
 
 %build
 %serverbuild
@@ -87,7 +81,6 @@ make
 perl -pi -e 's/gb2132/gb2312/' misc/email-2.5.6/email/Charset.py
 
 %install
-rm -rf %{buildroot}
 %makeinstall_std
 
 # apache conf
@@ -229,9 +222,6 @@ fi
 
 %post
 %_post_service %{name}
-%if %mdkversion < 201010
-%_post_webapp
-%endif
 
 cd %{_libdir}/%{name}
 
@@ -278,7 +268,7 @@ EOF
         /usr/sbin/postalias %{_var}/lib/%{name}/data/aliases
     else
         cat >> %{_sysconfdir}/aliases <<EOF
-:include:   %{_var}/lib/%{name}/data/aliases
+:include:	%{_var}/lib/%{name}/data/aliases
 EOF
         /usr/bin/newaliases
     fi
@@ -308,9 +298,6 @@ fi
 %_preun_service %{name}
 
 %postun
-%if %mdkversion < 201010
-%_postun_webapp
-%endif
 if [ $1 = 0 ]; then
     # generic tasks
 
@@ -328,17 +315,13 @@ if [ $1 = 0 ]; then
             "alias_database = $database" \
             "alias_maps = $maps"
     else
-        sed -i -e '/:include:   %{_var}/lib/%{name}/data/aliases/d' \
+        sed -i -e '/:include:	%{_var}/lib/%{name}/data/aliases/d' \
             %{_sysconfdir}/aliases
     fi
     /usr/bin/newaliases
 fi
 
-%clean
-rm -rf %{buildroot}
-
 %files
-%defattr(-,root,root)
 %doc ACKNOWLEDGMENTS BUGS FAQ INSTALL NEWS* README* TODO* UPGRADING
 %doc gnu-COPYING-GPL contrib/README.check_perms_grsecurity
 %doc doc/*
@@ -373,279 +356,4 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}
 %{_sbindir}/*
-
-
-%changelog
-* Wed May 04 2011 Oden Eriksson <oeriksson@mandriva.com> 2.1.13-7mdv2011.0
-+ Revision: 666358
-- mass rebuild
-
-* Wed Feb 23 2011 Oden Eriksson <oeriksson@mandriva.com> 2.1.13-6
-+ Revision: 639474
-- sync with MDVSA-2011:036
-
-* Sat Nov 06 2010 Funda Wang <fwang@mandriva.org> 2.1.13-5mdv2011.0
-+ Revision: 593902
-- rebuild for py2.7
-
-* Sun Oct 03 2010 Oden Eriksson <oeriksson@mandriva.com> 2.1.13-4mdv2011.0
-+ Revision: 582668
-- roll back to the mailman-2.1.13-pgp-smime_2010-03-01.patch patch (#61180)
-- fix one post error
-
-* Fri Oct 01 2010 Oden Eriksson <oeriksson@mandriva.com> 2.1.13-3mdv2011.0
-+ Revision: 582319
-- sync with MDVSA-2010:191
-- mailman-2.1.13-pgp-smime_2010-09-08
-
-  + Guillaume Rousse <guillomovitch@mandriva.org>
-    - fix log rotation (fix #59198)
-    - drop smrsh support, let expert sendmails users manage it themselves
-
-* Tue Mar 02 2010 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.13-1mdv2010.1
-+ Revision: 513659
-- keep group write permission on variable files, as cgi runs under apache uid and mail gid
-- switch to 'open to all' default access policy
-- use explicit .cgi extension, for a simpler apache configuration
-- new version
-- fix apache configuration file
-- fix post/pre dependencies
-- rely on filetrigger for reloading apache configuration begining with 2010.1, rpm-helper macros otherwise
-- new version
-
-* Mon Dec 21 2009 Oden Eriksson <oeriksson@mandriva.com> 2.1.12-6mdv2010.1
-+ Revision: 480539
-- bump release
-- fixed a weird typo...
-
-* Mon Dec 21 2009 Oden Eriksson <oeriksson@mandriva.com> 2.1.12-5mdv2010.1
-+ Revision: 480537
-- added pgp and s/mime support
-
-* Fri Dec 04 2009 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.12-4mdv2010.1
-+ Revision: 473514
-- better default apache configuration
-
-* Sun Jul 19 2009 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.12-3mdv2010.0
-+ Revision: 397967
-- keep cgi and icons under %%{_libdir}/%%{name}
-
-* Thu Jul 16 2009 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.12-2mdv2010.0
-+ Revision: 396507
-- ship more documentation
-- files perms/owernship cleanup:
- - no setgid bit for constant dirs
- - no setgid bit for variables dirs, make them owned by mailman user
- - make private archive directory private (#51117)
-
-* Sun Mar 29 2009 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.12-1mdv2009.1
-+ Revision: 362171
-- new version, needed for python 2.6 compatibility (#49148)
-- fix config file creation during post-installation
-- rediff arch renaming patch
-
-* Tue Feb 03 2009 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.11-3mdv2009.1
-+ Revision: 337131
-- keep bash completion in its own package
-
-* Thu Dec 25 2008 Funda Wang <fwang@mandriva.org> 2.1.11-2mdv2009.1
-+ Revision: 318987
-- rebuild for new python
-
-* Sun Jul 06 2008 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.11-1mdv2009.0
-+ Revision: 232165
-- new version
-- drop charset patch, a substitution is easier
-- drop CVE 2008-0564 patch, merged upstream
-- sync init script with sympa one
-- install all web stuff under /var/www/mailman
-
-* Tue Jun 17 2008 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.9-7mdv2009.0
-+ Revision: 223586
-- let's reintroduce virtualhost directive, with domain name as EMAIL_HOST now
-  (even if incorrect, it will still be better than build-time default values set
-  by configuration process)
-- use MTA-specific alias file hashing procedure, as postfix alias_base isn't used anymore
-- update postfix autoconfiguration with mailman documentation
-- update postfix autoconfiguration to match current mailman documentation
-
-* Tue Jun 17 2008 Thierry Vignaud <tv@mandriva.org> 2.1.9-6mdv2009.0
-+ Revision: 223142
-- rebuild
-
-  + Guillaume Rousse <guillomovitch@mandriva.org>
-    - apply defaul template to the mailman list
-    - more detailed explanations about the notification message
-    - various changes for post-installation:
-    - don't add virtualhost directive to mailman configuration
-    - don't add mailman alias file in postfix alias_database configuration
-      Update README.mdv with a more explicit description of post-configuration
-      process
-
-  + Pixel <pixel@mandriva.com>
-    - adapt to %%_localstatedir now being /var instead of /var/lib (#22312)
-
-* Fri Mar 07 2008 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.9-4mdv2008.1
-+ Revision: 181393
-- fix CVE-2008-0564
-
-* Wed Feb 27 2008 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.9-3mdv2008.1
-+ Revision: 175940
-- rename arch executable to avoid confusion with coreutils arch binary (fix #38056)
-- fix mailman linking from secure sendmail directory
-- don't install README.mdv in %%_sbindir
-
-  + Olivier Blin <oblin@mandriva.com>
-    - restore BuildRoot
-
-* Mon Dec 17 2007 Thierry Vignaud <tv@mandriva.org> 2mdv2008.1-current
-+ Revision: 129622
-- kill re-definition of %%buildroot on Pixel's request
-- s/Mandrake/Mandriva/
-
-
-* Wed Mar 07 2007 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.9-2mdv2007.1
-+ Revision: 134606
-- use rpm-helper helper script for generating password
-- import alias management procedure from sympa, so as to handle other MTAs as postfix
-- use database directive also for postfix, to make newaliase command work
-- don't set defaut language in configuration, as it breaks some settings without actual added value (fix #26834)
-
-* Wed Dec 06 2006 Michael Scherer <misc@mandriva.org> 2.1.9-2mdv2007.1
-+ Revision: 91527
-- bump release ( forget to commit it )
-- use --without-permcheck to allow package to build in iurt
-- Import mailman
-
-* Thu Sep 14 2006 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.9-1mdv2007.0
-- 2.1.9 final
-
-* Wed Sep 13 2006 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.9-0.rc1.2mdv2007.0
-- drop cve-2005-3573 patch, 2.1.9 is not affected
-
-* Sun Sep 10 2006 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.9-0.rc1.1mdv2007.0
-- new version, motivated by security fixes
-- new webapp macro
-- herein document for README.mdv
-- unzip all patches
-- new custom LSB-compliant initscript
-- drop grsecurity patch and specific handling, we don't have secure kernel
-  anymore
-- don't attempt to create mailman list in %%post if a previous installation
-  is found
-- make listinfo default index page for web interface
-
-* Wed Aug 23 2006 Olivier Thauvin <nanardon@mandriva.org> 2.1.8-2mdv2007.0
-- fix initscript: restart didn't do a real start, mailmanctl sound like
-  reload
-
-* Fri May 05 2006 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.8-1mdk
-- New release 2.1.8
-- rediff patch 9
-- drop patch 11, merged upstream
-
-* Thu Jan 19 2006 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.7-1mdk
-- New release 2.1.7
-- rediff patch11
-- pitiful workaround for missing files (#17820)
-
-* Mon Dec 05 2005 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.6-8mdk
-- security update for CVE-2005-3573 (P10), date-overflows (P11) (Stew Benedict <sbenedict@mandrakesoft.com>)
-
-* Fri Nov 18 2005 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.6-7mdk
-- requires python (fix #19830)
-
-* Wed Sep 07 2005 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.6-6mdk
-- revert to using symlinks for binaries, qrunner expect to find them in original location (fix #17983)
-- requires rpm-helper for preinstall and preuninstall
-
-* Thu Aug 25 2005 Michael Scherer <misc@mandriva.org> 2.1.6-5mdk
-- rebuild to fix #17820
-
-* Wed Aug 17 2005 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.6-4mdk
-- fix postinstall script
-
-* Sun Aug 07 2005 Michael Scherer <misc@mandriva.org> 2.1.6-3mdk
-- fix postinstall script
-
-* Thu Jul 14 2005 Guillaume Rousse <guillomovitch@mandriva.org> 2.1.6-2mdk 
-- new mail-server requires
-- new apache rpm macros
-- move binaries to /usr/sbin instead of symlinking them
-- use %%serverbuild
-
-* Thu Jun 23 2005 Oden Eriksson <oeriksson@mandriva.com> 2.1.6-1mdk
-- 2.1.6
-- added fixes for new apache
-- use the %%mkrel macro
-- rediffed P9
-- drop the CAN-2004-1177 CAN-2005-0202 patches, it's implemented upstream
-- don't nuke *.pyc files
-
-* Wed Mar 02 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 2.1.5-15mdk
-- fix #13651, MDKSA-2005:037 (CAN-2005-0202) (P101)
-- nuke *.pyc files
-
-* Fri Feb 18 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 2.1.5-14mdk
-- spec file cleanups, remove the ADVX-build stuff
-- strip away annoying ^M
-
-* Thu Jan 27 2005 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-13mdk 
-- condtional build options documented in package description
-- spec cleanup
-
-* Tue Jan 25 2005 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-12mdk 
-- security update for CAN-2004-1177 (Stew Benedict <sbenedict@mandrakesoft.com>)
-
-* Sat Jan 22 2005 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-11mdk 
-- add binaries symlinks in /usr/sbin
-- only change /etc/cron.allow if it already exists
-- don't shipt duplicated icons
-- herein document instead of external source whenever possible
-- apache configuration file in /etc/httpd/webapps.d
-- no more order for apache configuration
-- spec cleanup
-- don't change test scripts
-- more complete README.mdk
-
-* Tue Dec 07 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-10mdk 
-- charset patch (David Relson <relson@osagesoftware.com>)
-
-* Sat Dec 04 2004 Michael Scherer <misc@mandrake.org> 2.1.5-9mdk
-- Rebuild for new python
-
-* Mon Nov 15 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-8mdk 
-- create and hash alias file at the same time as modificating postfix config, so as to prevent postfix crash at startup in full installation scenario (#10180)
-- make smtpdaemon a prereq, as it is needed at post-installation
-- silent post-installation
-- no more python prereq
-- spec cleanup
-
-* Fri Sep 03 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-7mdk 
-- dont specify perms and owner in logrotate configuration (David Relson <relson@osagesoftware.com>)
-
-* Mon Aug 30 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-6mdk 
-- use macros to make easier rebuilding with different uid & gid (David Relson <relson@osagesoftware.com>)
-
-* Mon Aug 30 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-5mdk 
-- fixed missing file in logrotate config
-
-* Sun Jul 25 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-4mdk 
-- patch build to avoid having buildroot in binaries, no more post-install compilation needed
-
-* Fri Jul 23 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-3mdk 
-- explicit libdir
-
-* Fri Jul 02 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-2mdk 
-- make sure mail user is allowed to use cron
-- finer logrotate configuration (stolen from Debian)
-
-* Wed Jun 02 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.5-1mdk
-- new version
-
-* Thu Apr 08 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.4-4mdk
-- automatic setup at installation
-
-* Thu Apr 01 2004 Guillaume Rousse <guillomovitch@mandrake.org> 2.1.4-3mdk
-- added bash-completion
 
