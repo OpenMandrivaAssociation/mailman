@@ -93,20 +93,17 @@ Alias /pipermail     %{_var}/lib/%{name}/archives/public
 
 
 <Directory %{_libdir}/%{name}/cgi-bin>
-    Order allow,deny
-    Allow from all
+    Require all granted
     Options ExecCgi
     DirectoryIndex listinfo.cgi
 </Directory>
 
 <Directory %{_libdir}/%{name}/icons>
-    Order allow,deny
-    Allow from all
+    Require all granted
 </Directory>
 
 <Directory %{_var}/lib/mailman/archives/public>
-    Order allow,deny
-    Allow from all
+    Require all granted
     Options FollowSymlinks
 </Directory>
 EOF
