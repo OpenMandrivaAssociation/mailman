@@ -21,6 +21,7 @@ Patch100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.15-pgp-smime_2012-08-28.
 Source100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.15-pgp-smime_2012-08-28.patch.md5
 Requires:	mail-server
 Requires:	apache
+Requires:	apache-mod_socache_shmcb
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
 Requires:	openssl
