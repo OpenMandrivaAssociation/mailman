@@ -5,7 +5,7 @@
 Summary:	The GNU Mailing List Management System
 Name:		mailman
 Version:	2.1.15
-Release:	2
+Release:	3
 Group:		System/Servers
 License:	GPLv2
 Url:		http://www.list.org/
@@ -25,7 +25,7 @@ Requires:	apache-mod_socache_shmcb
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
 Requires:	openssl
-%py_requires -d
+BuildRequires:  python-devel
 
 %description
 Mailman -- The GNU Mailing List Management System --
