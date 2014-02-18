@@ -24,7 +24,8 @@ Requires:	apache
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
 Requires:	openssl
-%py_requires -d
+Requires:	pkgconfig(python-2.7)
+#%py_requires -d
 
 %description
 Mailman -- The GNU Mailing List Management System --
