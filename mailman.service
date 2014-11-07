@@ -1,0 +1,10 @@
+[Unit]
+Description=The GNU Mailing List Management System
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/mailmanctl -s -q start
+
+[Install]
+WantedBy=multi-user.target  

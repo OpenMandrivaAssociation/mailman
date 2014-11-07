@@ -5,16 +5,16 @@
 Summary:	The GNU Mailing List Management System
 Name:		mailman
 Version:	2.1.15
-Release:	9
+Release:	10
 Group:		System/Servers
 License:	GPLv2
 Url:		http://www.list.org/
 Source0:	http://ftp.gnu.org/gnu/mailman/%{name}-%{version}.tgz
-Source1:	%{name}.init
+Source1:	mailman-tmpfiles.conf
+Source2:	mailman.service
 Patch0:		%{name}-buildroot-check.patch
 Patch1:		mailman-2.1.12-rename-arch.patch
 Patch6:		%{name}-2.1.2-postfix-aliases.patch
-Patch8:		%{name}-2.1.5-build.patch
 Patch9:		%{name}-2.1.11-change-default-icons-url.patch
 # http://non-gnu.uvt.nl/mailman-pgp-smime/
 Patch100:	http://non-gnu.uvt.nl/pub/mailman/mailman-2.1.15-pgp-smime_2012-08-28.patch
@@ -109,9 +109,13 @@ Alias /pipermail     %{_var}/lib/%{name}/archives/public
 </Directory>
 EOF
 
-# init script
-install -d -m 755 %{buildroot}%{_initrddir}
-install -m 755 misc/mailman %{buildroot}%{_initrddir}
+install -p -D -m644 %{SOURCE1} %{buildroot}%{_sysconfdir}/tmpfiles.d/mailman.conf
+
+mkdir -p %{buildroot}%{_docdir}/%{name}
+
+# Systemd service file
+mkdir -p %{buildroot}%{_unitdir}
+install -m644 %{SOURCE2} %{buildroot}%{_unitdir}
 
 # move logs directory into /var/log
 install -d -m 755 %{buildroot}%{_var}/log
@@ -165,8 +169,6 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/%{name} <<EOF
 }
 EOF
 
-# install init script
-install -m 755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 
 # binaries symlinks from /usr/sbin
 install -d -m 755 %{buildroot}%{_sbindir}
@@ -177,7 +179,7 @@ done
 popd
 
 cat > README.mdv <<EOF
-Mandriva RPM specific notes
+RPM specific notes
 
 setup
 -----
@@ -206,7 +208,9 @@ upgrade
 The alias db (/var/lib/mailman/data/aliases.db) should be owned by the same uid
 and gid as the one used by mailman, mail.mail here. You may experience toubles
 when upgrading from old releases of the packages.
+
 EOF
+
 
 %pre
 if [ $1 = "2" ]; then
@@ -219,7 +223,7 @@ if [ $1 = "2" ]; then
 fi
 
 %post
-%_post_service %{name}
+%systemd_post mailman.service
 
 cd %{_libdir}/%{name}
 
@@ -293,7 +297,9 @@ else
 fi
 
 %preun
-%_preun_service %{name}
+%systemd_preun mailman.service
+# rpm should not abort if last command run had non-zero exit status, exit cleanly
+exit 0
 
 %postun
 if [ $1 = 0 ]; then
@@ -318,6 +324,11 @@ if [ $1 = 0 ]; then
     fi
     /usr/bin/newaliases
 fi
+
+%systemd_postun_with_restart mailman.service
+
+# rpm should not abort if last command run had non-zero exit status, exit cleanly
+exit 0
 
 %files
 %doc ACKNOWLEDGMENTS BUGS FAQ INSTALL NEWS* README* TODO* UPGRADING
@@ -349,9 +360,10 @@ fi
 %attr(-,%{uid},apache) %{_var}/lib/%{name}/archives/private
 %attr(-,%{uid},%{gid}) %{_var}/log/%{name}
 # configuration files
-%{_initrddir}/%{name}
+%{_unitdir}/mailman.service
 %config(noreplace) %{_webappconfdir}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/mailman.conf
 %{_sbindir}/*
 
