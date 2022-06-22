@@ -1,11 +1,13 @@
-%define uid     mail
-%define gid     mail
-%define email_version   2.5.8
+%define debug_package %nil
+
+%define uid mail
+%define gid mail
+%define email_version 2.5.8
 
 Summary:	The GNU Mailing List Management System
 Name:		mailman
 Version:	2.1.15
-Release:	15
+Release:	16
 Group:		System/Servers
 License:	GPLv2
 Url:		http://www.list.org/
@@ -25,7 +27,7 @@ Requires:	apache-mod_socache_shmcb
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
 Requires:	openssl
-BuildRequires:  python-devel
+BuildRequires:	pkgconfig(python)
 
 %description
 Mailman -- The GNU Mailing List Management System --
@@ -62,7 +64,7 @@ Conditional build options:
 %autopatch -p1
 
 %build
-%serverbuild
+%set_build_flags
 # As a normal user, we don't have permissions to do this.  %patch0 changes
 #   configure so that the directory check will never fail.
 autoreconf
@@ -77,12 +79,12 @@ autoreconf
     --with-cgi-ext=.cgi \
     --libdir=%{_libdir}
 
-make
+%make_build -j1
 # fix encoding typo
 perl -pi -e 's/gb2132/gb2312/' misc/email-2.5.6/email/Charset.py
 
 %install
-%makeinstall_std
+%make_install
 
 # apache conf
 install -d -m 755 %{buildroot}%{_webappconfdir}
