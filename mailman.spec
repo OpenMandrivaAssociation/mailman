@@ -7,7 +7,7 @@
 Summary:	The GNU Mailing List Management System
 Name:		mailman
 Version:	2.1.15
-Release:	16
+Release:	17
 Group:		System/Servers
 License:	GPLv2
 Url:		http://www.list.org/
