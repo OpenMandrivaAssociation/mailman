@@ -10,7 +10,7 @@ Version:	2.1.15
 Release:	17
 Group:		System/Servers
 License:	GPLv2
-Url:		http://www.list.org/
+Url:		https://www.list.org/
 Source0:	http://ftp.gnu.org/gnu/mailman/%{name}-%{version}.tgz
 Source1:	mailman-tmpfiles.conf
 Source2:	mailman.service
