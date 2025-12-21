@@ -27,6 +27,11 @@ Requires:	apache-mod_socache_shmcb
 Requires:	python-GnuPG-Interface
 Requires:	gnupg
 Requires:	openssl
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	pkgconfig(python)
 
 %description
